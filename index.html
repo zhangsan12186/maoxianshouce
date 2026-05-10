@@ -1,133 +1,323 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>冒险手册伤害对比计算器</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            padding: 15px;
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #f5f5f5;
+            line-height: 1.6;
+        }
+        
+        h2 {
+            text-align: center;
+            margin-bottom: 15px;
+            color: #2c3e50;
+            font-size: 1.5rem;
+        }
+        
+        p {
+            text-align: center;
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+        
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        @media (min-width: 768px) {
+            .container {
+                flex-direction: row;
+            }
+        }
+        
+        .panel {
+            flex: 1;
+            min-width: 0;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .panel-old {
+            border: 1px solid #ccc;
+            background-color: white;
+        }
+        
+        .panel-new {
+            border: 1px solid #27ae60;
+            background-color: #fafffa;
+        }
+        
+        .panel h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+        
+        .panel-old h3 {
+            color: #2c3e50;
+        }
+        
+        .panel-new h3 {
+            color: #27ae60;
+        }
+        
+        .input-group {
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .input-group label {
+            flex: 1;
+            min-width: 140px;
+            margin-right: 10px;
+            font-size: 0.95rem;
+        }
+        
+        .input-group input[type="text"],
+        .input-group input[type="number"] {
+            width: 100px;
+            padding: 8px 5px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            text-align: right;
+            font-size: 0.95rem;
+            /* 移除上下箭头 */
+            -moz-appearance: textfield;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        
+        /* 针对Webkit浏览器的额外样式 */
+        .input-group input[type="number"]::-webkit-inner-spin-button,
+        .input-group input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        
+        button {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.1rem;
+            background-color: #2980b9;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #1f639b;
+        }
+        
+        .result-box {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #ecf0f1;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .result-box h3 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+        
+        .result-box p {
+            text-align: left;
+            margin: 10px 0;
+            font-size: 1rem;
+        }
+        
+        hr {
+            margin: 15px 0;
+            border: none;
+            border-top: 1px solid #bdc3c7;
+        }
+        
+        #diff {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        
+        /* 移动端优化 */
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            h2 {
+                font-size: 1.3rem;
+            }
+            
+            .panel {
+                padding: 12px;
+            }
+            
+            .input-group {
+                margin-bottom: 10px;
+            }
+            
+            .input-group label {
+                min-width: 120px;
+                font-size: 0.9rem;
+            }
+            
+            .input-group input[type="text"],
+            .input-group input[type="number"] {
+                width: 85px;
+                padding: 6px 5px;
+                font-size: 0.9rem;
+            }
+            
+            button {
+                padding: 12px;
+                font-size: 1rem;
+            }
+        }
+    </style>
 </head>
 <body>
     <h2>🗡️ 冒险手册伤害对比计算器</h2>
-    <p style="color:#666; font-size:14px;">支持 K（千）和 M（百万）单位！例如：100K = 100,000；1.5M = 1,500,000</p>
+    <p>支持 K（千）和 M（百万）单位！例如：100K = 100,000；1.5M = 1,500,000</p>
     
-    <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+    <div class="container">
         <!-- 变更前 面板 -->
-        <div class="content-box" style="flex: 1; min-width: 300px; border: 1px solid #ccc;">
-            <h3 style="margin-top: 0; color: #2c3e50;">📉 变更前 (当前)</h3>
+        <div class="panel panel-old">
+            <h3>📉 变更前 (当前)</h3>
             
-            <div style="margin-bottom: 10px;">
+            <div class="input-group">
                 <label>面板攻击:</label>
-                <input type="text" id="p1_old" value="1K" style="width:80px; float:right; text-align:right;">
+                <input type="text" id="p1_old" value="1K">
             </div>
-            <div style="margin-bottom: 10px; clear:both;">
-                <label>倍率1 (%):</label>
-                <input type="number" id="r1_old" value="2.49" step="0.01" style="width:80px; float:right; text-align:right;">
-                <span style="color:#666; font-size:12px; float:right; margin-left:5px;">(填小数)</span>
+            <div class="input-group">
+                <label title="填小数，如249%填2.49">倍率1:</label>
+                <input type="number" id="r1_old" value="2.49" step="0.01">
             </div>
 
-            <div style="margin-bottom: 10px; clear:both;">
+            <div class="input-group">
                 <label>魔力:</label>
-                <input type="text" id="p2_old" value="500" style="width:80px; float:right; text-align:right;">
+                <input type="text" id="p2_old" value="500">
             </div>
-            <div style="margin-bottom: 10px; clear:both;">
-                <label>倍率2 (%):</label>
-                <input type="number" id="r2_old" value="2.0" step="0.01" style="width:80px; float:right; text-align:right;">
-                <span style="color:#666; font-size:12px; float:right; margin-left:5px;">(填小数)</span>
-            </div>
-
-            <div style="margin-bottom: 10px; clear:both;">
-                <label>技能基础增幅(%):</label>
-                <input type="number" id="baseInc_old" value="50" style="width:80px; float:right; text-align:right;">
+            <div class="input-group">
+                <label title="填小数，如200%填2.0">倍率2:</label>
+                <input type="number" id="r2_old" value="2.0" step="0.01">
             </div>
 
-            <div style="margin-bottom: 10px; clear:both;" title="包含：技能伤害、对应元素伤害、全元素伤害、直接伤害、武器伤害增幅、对精英/怪物/种族伤害等">
-                <label>技能/元素增伤(%):</label>
-                <input type="number" id="inc_old" value="130" style="width:80px; float:right; text-align:right;">
-            </div>
-
-            <div style="margin-bottom: 10px; clear:both;">
-                <label>最终伤害加成(%):</label>
-                <input type="number" id="finalInc_old" value="100" style="width:80px; float:right; text-align:right;">
-            </div>
-
-            <div style="margin-bottom: 10px; clear:both;">
-                <label>暴击伤害(%):</label>
-                <input type="number" id="critDmg_old" value="150" style="width:80px; float:right; text-align:right;">
-            </div>
-
-            <div style="margin-bottom: 10px; clear:both;">
+            <div class="input-group">
                 <label>目标防御力:</label>
-                <input type="text" id="def_old" value="5K" style="width:80px; float:right; text-align:right;">
+                <input type="text" id="def_old" value="5K">
             </div>
 
-            <div style="margin-bottom: 10px; clear:both;">
+            <div class="input-group">
+                <label>技能基础增幅(%):</label>
+                <input type="number" id="baseInc_old" value="50">
+            </div>
+
+            <div class="input-group" title="包含：技能伤害、对应元素伤害、全元素伤害、直接伤害、武器伤害增幅、对精英/怪物/种族伤害等">
+                <label>技能/元素增伤(%):</label>
+                <input type="number" id="inc_old" value="130">
+            </div>
+
+            <div class="input-group">
+                <label>最终伤害加成(%):</label>
+                <input type="number" id="finalInc_old" value="100">
+            </div>
+
+            <div class="input-group">
+                <label>暴击伤害(%):</label>
+                <input type="number" id="critDmg_old" value="150">
+            </div>
+
+            <div class="input-group">
                 <label>无视防御(%):</label>
-                <input type="number" id="pen_old" value="10" style="width:80px; float:right; text-align:right;">
+                <input type="number" id="pen_old" value="10">
             </div>
         </div>
 
         <!-- 变更后 面板 -->
-        <div class="content-box" style="flex: 1; min-width: 300px; border: 1px solid #27ae60; background-color: rgba(250, 255, 250, 0.9);">
-            <h3 style="margin-top: 0; color: #27ae60;">📈 变更后 (提升目标)</h3>
+        <div class="panel panel-new">
+            <h3>📈 变更后 (提升目标)</h3>
             
-            <div style="margin-bottom: 10px;">
+            <div class="input-group">
                 <label>面板攻击:</label>
-                <input type="text" id="p1_new" value="1.1K" style="width:80px; float:right; text-align:right;">
+                <input type="text" id="p1_new" value="1.1K">
             </div>
-            <div style="margin-bottom: 10px; clear:both;">
-                <label>倍率1 (%):</label>
-                <input type="number" id="r1_new" value="2.49" step="0.01" style="width:80px; float:right; text-align:right;">
-                <span style="color:#666; font-size:12px; float:right; margin-left:5px;">(填小数)</span>
+            <div class="input-group">
+                <label title="填小数，如249%填2.49">倍率1:</label>
+                <input type="number" id="r1_new" value="2.49" step="0.01">
             </div>
 
-            <div style="margin-bottom: 10px; clear:both;">
+            <div class="input-group">
                 <label>魔力:</label>
-                <input type="text" id="p2_new" value="500" style="width:80px; float:right; text-align:right;">
+                <input type="text" id="p2_new" value="500">
             </div>
-            <div style="margin-bottom: 10px; clear:both;">
-                <label>倍率2 (%):</label>
-                <input type="number" id="r2_new" value="2.0" step="0.01" style="width:80px; float:right; text-align:right;">
-                <span style="color:#666; font-size:12px; float:right; margin-left:5px;">(填小数)</span>
-            </div>
-
-            <div style="margin-bottom: 10px; clear:both;">
-                <label>技能基础增幅(%):</label>
-                <input type="number" id="baseInc_new" value="50" style="width:80px; float:right; text-align:right;">
+            <div class="input-group">
+                <label title="填小数，如200%填2.0">倍率2:</label>
+                <input type="number" id="r2_new" value="2.0" step="0.01">
             </div>
 
-            <div style="margin-bottom: 10px; clear:both;" title="包含：技能伤害、对应元素伤害、全元素伤害、直接伤害、武器伤害增幅、对精英/怪物/种族伤害等">
-                <label>技能/元素增伤(%):</label>
-                <input type="number" id="inc_new" value="130" style="width:80px; float:right; text-align:right;">
-            </div>
-
-            <div style="margin-bottom: 10px; clear:both;">
-                <label>最终伤害加成(%):</label>
-                <input type="number" id="finalInc_new" value="100" style="width:80px; float:right; text-align:right;">
-            </div>
-
-            <div style="margin-bottom: 10px; clear:both;">
-                <label>暴击伤害(%):</label>
-                <input type="number" id="critDmg_new" value="150" style="width:80px; float:right; text-align:right;">
-            </div>
-
-            <div style="margin-bottom: 10px; clear:both;">
+            <div class="input-group">
                 <label>目标防御力:</label>
-                <input type="text" id="def_new" value="5K" style="width:80px; float:right; text-align:right;">
+                <input type="text" id="def_new" value="5K">
             </div>
 
-            <div style="margin-bottom: 10px; clear:both;">
+            <div class="input-group">
+                <label>技能基础增幅(%):</label>
+                <input type="number" id="baseInc_new" value="50">
+            </div>
+
+            <div class="input-group" title="包含：技能伤害、对应元素伤害、全元素伤害、直接伤害、武器伤害增幅、对精英/怪物/种族伤害等">
+                <label>技能/元素增伤(%):</label>
+                <input type="number" id="inc_new" value="130">
+            </div>
+
+            <div class="input-group">
+                <label>最终伤害加成(%):</label>
+                <input type="number" id="finalInc_new" value="100">
+            </div>
+
+            <div class="input-group">
+                <label>暴击伤害(%):</label>
+                <input type="number" id="critDmg_new" value="150">
+            </div>
+
+            <div class="input-group">
                 <label>无视防御(%):</label>
-                <input type="number" id="pen_new" value="10" style="width:80px; float:right; text-align:right;">
+                <input type="number" id="pen_new" value="10">
             </div>
         </div>
     </div>
     
     <br>
-    <button onclick="calc()" style="width:100%; padding: 15px; font-size: 18px; background-color: #2980b9; color: white; border:none; border-radius: 5px; cursor:pointer;">🚀 开始对比计算</button>
+    <button onclick="calc()">🚀 开始对比计算</button>
     
-    <div id="result" class="content-box" style="margin-top: 20px; padding: 20px; background-color: rgba(236, 240, 241, 0.9); display:none;">
-        <h3 style="margin-top: 0;">📊 计算结果对比</h3>
-        <p id="oldDmg" style="font-size: 16px;"></p>
-        <p id="newDmg" style="font-size: 16px;"></p>
+    <div id="result" class="result-box">
+        <h3>📊 计算结果对比</h3>
+        <p id="oldDmg"></p>
+        <p id="newDmg"></p>
         <hr>
-        <p id="diff" style="font-size: 18px; font-weight: bold;"></p>
+        <p id="diff"></p>
     </div>
 
     <script>
